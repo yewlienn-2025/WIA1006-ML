@@ -59,10 +59,12 @@ def load_model():
     df_m = df[core_features + ['match_outcome']].copy()
 
     for col in df_m.columns:
-        if df_m[col].dtype == 'object':
+        if df_m[col].dtype == 'object' or str(df_m[col].dtype) in ['string', 'StringDtype']:
             df_m[col] = df_m[col].fillna(df_m[col].mode()[0])
-        else:
+        elif pd.api.types.is_numeric_dtype(df_m[col]):
             df_m[col] = df_m[col].fillna(df_m[col].median())
+        else:
+            df_m[col] = df_m[col].fillna(df_m[col].mode()[0])
 
     orientation_stats = df_m.groupby('sexual_orientation').agg({
         'bio_length'        : 'mean',
